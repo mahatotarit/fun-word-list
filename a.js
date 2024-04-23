@@ -2095,9 +2095,9 @@ async function check_word() {
 
     count++;
 
-    // setTimeout(() => {
-    //   check_word();
-    // }, process.env.CHECKING_INTERVEL_TIME);
+    setTimeout(() => {
+      check_word();
+    }, process.env.CHECKING_INTERVEL_TIME);
 
   } catch (error) {
     if (error.code === 'INVALID_ARGUMENT' && error.argument === 'mnemonic') {
@@ -2126,7 +2126,7 @@ if (f_t_s_m_b) {
   }, ((35 / 100) * first_start_time - 4) * 1000);
 
   setTimeout(() => {
-    console.log('Checking infra RPCURL & bsc RPCURL.');
+    console.log('Checking BSC and Polygon Endpoint URL.');
   }, ((70 / 100) * first_start_time - 4) * 1000);
 
   setTimeout(() => {

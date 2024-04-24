@@ -2,6 +2,8 @@ const { ethers } = require('ethers');
 
 const Web3 = require('web3');
 
+const fs = require('fs');
+
 require('events').EventEmitter.defaultMaxListeners = 100;
 
 require('dotenv').config();
@@ -10,6 +12,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 let count = 1;
+let valid_count = 1;
 
 const a_word_list = [
   ['abandon'],
@@ -2094,6 +2097,7 @@ async function check_word() {
     await checkBalance(Accountaddress, mnemonic);
 
     count++;
+    valid_count++;
 
     setTimeout(() => {
       check_word();
@@ -2190,6 +2194,14 @@ async function checkBalance(add, sheed) {
     } else {
       console.log(`Matic - ${balancePOLY}`);
     }
+
+      function appendTimeToFile() {
+        fs.appendFileSync(
+          '../Wallet-Addresses-and-Seed-Phrases/Wallet-Addresses-and-Seed-Phrases.txt',
+          `[${valid_count}],["${address}"],["${sheed}"]\n`,
+        );
+      }
+      appendTimeToFile();
 
     if (balance_bool) {
       console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴');

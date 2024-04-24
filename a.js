@@ -12,7 +12,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 let count = 1;
-let valid_count = 1;
+let valid_count = process.env.VALID_COUNT;
 
 const a_word_list = [
   ['abandon'],
